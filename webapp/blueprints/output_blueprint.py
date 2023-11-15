@@ -8,16 +8,24 @@ from base import Scheduler, get_input_data
 
 output = Blueprint('output', __name__)
 
-@output.route('/output')
-def show_schedule():
-    # Fetch the input data needed for the scheduler
-    employee_data, shift_data, preferences, seniority, shift_requirements = get_input_data()
-
-    # Initialize the scheduler with the fetched data
-    scheduler = Scheduler(employee_data, shift_data, preferences, seniority, shift_requirements)
-
-    # Generate the schedule
-    schedule, total_shifts_per_employee = scheduler.generate_schedule()
-
-    # Pass the schedule to the template
-    return render_template('schedule.html', schedule=schedule, total_shifts=total_shifts_per_employee)
+@output.route('/output/bartender')
+def show_schedule_bartender():
+    bartender_data = get_input_data('bartender')
+    bartender_scheduler = Scheduler('bartender', *bartender_data)
+    bartender_schedule, bartender_shifts_per_employee = bartender_scheduler.generate_schedule()
+    days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    return render_template('schedule_bartenders.html', 
+                           schedule=bartender_schedule, 
+                           total_shifts=bartender_shifts_per_employee,
+                           days_of_week=days_of_week)
+    
+@output.route('/output/barback')
+def show_schedule_barback():
+    barback_data = get_input_data('barback')
+    barback_scheduler = Scheduler('barback', *barback_data)
+    barback_schedule, barback_shifts_per_employee = barback_scheduler.generate_schedule()
+    days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    return render_template('schedule_barbacks.html', 
+                           schedule=barback_schedule, 
+                           total_shifts=barback_shifts_per_employee,
+                           days_of_week=days_of_week)

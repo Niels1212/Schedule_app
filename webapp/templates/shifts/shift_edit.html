@@ -8,6 +8,14 @@
     <form action="{{ url_for('shifts.update_shifts', shift_id=shift[0]) }}" method="post">
         <label for="shift_name">Shift Name:</label>
         <input type="text" id="shift_name" name="shift_name" value="{{ shift[1] }}" required>
+
+        <!-- Add a new dropdown for the shift type -->
+        <label for="shift_type">Shift Type:</label>
+        <select id="shift_type" name="shift_type" required>
+            <option value="bartender" {% if shift[2] == 'bartender' %}selected{% endif %}>Bartender</option>
+            <option value="barback" {% if shift[2] == 'barback' %}selected{% endif %}>Barback</option>
+            <!-- Add additional shift types as needed -->
+        </select>
         <input type="submit" value="Update Shift">
     </form>
     <br>

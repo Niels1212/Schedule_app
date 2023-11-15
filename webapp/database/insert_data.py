@@ -57,22 +57,22 @@ class SchedulingDB:
         self.cursor = self.conn.cursor()
 
     # Employee Data
-    def insert_employee(self, name):
-        self.cursor.execute("INSERT INTO Employees (name) VALUES (?)", (name,))
+    def insert_employee(self, name, role):
+        self.cursor.execute("INSERT INTO Employees (name, role) VALUES (?, ?)", (name, role))
         self.conn.commit()
-    def update_employee_name(self, employee_id, new_name):
-        self.cursor.execute("UPDATE Employees SET name = ? WHERE id = ?", (new_name, employee_id))
+    def update_employee(self, employee_id, new_name, new_role):
+        self.cursor.execute("UPDATE Employees SET name = ?, role = ? WHERE id = ?", (new_name, new_role, employee_id))
         self.conn.commit()
     def delete_employee(self, employee_id):
         self.cursor.execute("DELETE FROM Employees WHERE id = ?", (employee_id,))
         self.conn.commit()
 
     # Shift Data
-    def insert_shift(self, name):
-        self.cursor.execute("INSERT INTO Shifts (name) VALUES (?)", (name,))
+    def insert_shift(self, name, role_type):
+        self.cursor.execute("INSERT INTO Shifts (name, role_type) VALUES (?, ?)", (name, role_type))
         self.conn.commit()
-    def update_shift_name(self, shift_id, new_name):
-        self.cursor.execute("UPDATE Shifts SET name = ? WHERE id = ?", (new_name, shift_id))
+    def update_shift_name(self, shift_id, new_name, new_role_type):
+        self.cursor.execute("UPDATE Shifts SET name = ?, role_type = ? WHERE id = ?", (new_name, new_role_type, shift_id))
         self.conn.commit()
     def delete_shift(self, shift_id):    
         self.cursor.execute("DELETE FROM Shifts WHERE id = ?", (shift_id,))
@@ -122,7 +122,7 @@ def main():
     db = SchedulingDB('scheduling.db')
 
     # Sample operations
-    db.delete_employee(18)
+    db.update_shift_requirement(0,9,2)
     db.close()
 
 if __name__ == "__main__":

@@ -5,24 +5,25 @@
 </head>
 <body>
     <h1>Employee List</h1>
-    <!--a href="{{ url_for('employees.add_employee') }}">Add Employee</a-->
     <a href="{{ url_for('employees.add_employee_form') }}">Add Employee</a>
+    <a href="{{ url_for('view') }}">Back To Main</a>
     <table border="1">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Name</th>
+                <th>Role</th> <!-- New header for the role -->
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
         {% for employee in data %}
             <tr>
-                <td>{{ employee[0] }}</td> <!-- The first element of the tuple is the id -->
-                <td>{{ employee[1] }}</td> <!-- The second element of the tuple is the name -->
+                <td>{{ employee[0] }}</td> <!-- ID -->
+                <td>{{ employee[1] }}</td> <!-- Name -->
+                <td>{{ employee[2] }}</td> <!-- Role -->
                 <td>
                     <a href="{{ url_for('employees.edit_employee_form', employee_id=employee[0]) }}">Edit</a>
-                </td>
-                <td>
                     <!-- Delete form -->
                     <form action="{{ url_for('employees.delete_employee', employee_id=employee[0]) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this employee?');">
                         <input type="submit" value="Delete">
@@ -31,7 +32,7 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="3">No employees found</td>
+                <td colspan="4">No employees found</td> <!-- Update the colspan to 4 because we now have 4 columns -->
             </tr>
         {% endfor %}
         </tbody>

@@ -16,34 +16,33 @@
     </style>
 </head>
 <body>
-    <h1>Weekly Schedule</h1>
+    <h1>Bartender Weekly Schedule</h1>
     <table>
         <thead>
             <tr>
                 <th>Day / Shift</th>
-                {% for shift in schedule[0]['shifts'] %} <!-- Assuming all days have the same shifts -->
+                {% for shift in schedule[0]['shifts'] %}
                     <th>{{ shift['shift_name'] }}</th>
                 {% endfor %}
             </tr>
         </thead>
         <tbody>
-            {% set days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
             {% for day_info in schedule %}
                 <tr>
-                    <td>{{ days_of_week[day_info['day']] }}</td> <!-- Use the mapping here -->
+                    <td>{{ days_of_week[day_info['day']] }}</td>
                     {% for shift_info in day_info['shifts'] %}
-                        <td>{{ shift_info['employees']|join(', ') }}</td>
+                        <td>{{ shift_info['employees'] | join(', ') }}</td>
                     {% endfor %}
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <h2>Total Shifts per Employee</h2>
+    <h2>Total Shifts per Bartender</h2>
     <table>
         <thead>
             <tr>
-                <th>Employee</th>
+                <th>Bartender</th>
                 <th>Total Shifts</th>
             </tr>
         </thead>
@@ -57,10 +56,6 @@
         </tbody>
     </table>
 
-    <!-- Button to go back to shift requirements management -->
-    <form action="{{ url_for('requirements.manage_requirements') }}" method="get" style="margin-top: 20px;">
-        <button type="submit">Back to Shift Requirements</button>
-    </form>
-
+    <a href="{{ url_for('create_schedule.manage_create_schedule_bartender') }}">Back to Schedule Management</a>
 </body>
 </html>

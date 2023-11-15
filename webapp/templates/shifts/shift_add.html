@@ -8,6 +8,12 @@
     <form action="{{ url_for('shifts.add_shift') }}" method="post">
         <label for="shift_name">Shift Name:</label>
         <input type="text" id="shift_name" name="shift_name" required>
+        <label for="shift_type">Shift Type:</label>
+        <select id="shift_type" name="shift_type" required>
+            <option value="bartender">Bartender</option>
+            <option value="barback">Barback</option>
+            <!-- Add other shift types as needed -->
+        </select>        
         <input type="submit" value="Add Shift">
     </form>
     <br>

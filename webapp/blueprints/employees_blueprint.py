@@ -8,6 +8,7 @@ from database.insert_data import SchedulingDB
 employees = Blueprint('employees', __name__)
 scheduling_db = SchedulingDB('scheduling.db')
 
+
 @employees.route('/view')
 def view():
     data = db_utils.fetch_all_employees()
@@ -22,11 +23,13 @@ def add_employee_form():
 def add_employee():
     # Get the form data
     employee_name = request.form['employee_name']
+    employee_role = request.form['employee_role'] 
+    print("Adding employee:", employee_name, "Role:", employee_role)
     # Insert into the database (using your custom function)
     scheduling_db = SchedulingDB('scheduling.db')
     # Insert into the database
     try:
-        scheduling_db.insert_employee(employee_name)
+        scheduling_db.insert_employee(employee_name, employee_role)
         return redirect(url_for('employees.view'))
     except Exception as e:
         # Log the exception
@@ -46,9 +49,11 @@ def edit_employee_form(employee_id):
 def update_employee(employee_id):
     # Get the form data
     new_name = request.form['employee_name']
+    new_role = request.form['employee_role']
     # Update in the database (using your custom function)
+    scheduling_db = SchedulingDB('scheduling.db')
     try:
-        scheduling_db.update_employee_name(employee_id, new_name)
+        scheduling_db.update_employee(employee_id, new_name, new_role)
         return redirect(url_for('employees.view'))
     except Exception as e:
         # Log the exception

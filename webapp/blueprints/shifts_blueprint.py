@@ -22,14 +22,16 @@ def add_shift_form():
 def add_shift():
     # Get the form data
     shift_name = request.form['shift_name']
+    shift_type = request.form['shift_type']
+    print("Adding shift:", shift_name, "shift_Role:", shift_type)
     # Insert into the database
     try:
-        scheduling_db.insert_shift(shift_name)
+        scheduling_db.insert_shift(shift_name, shift_type)
         return redirect(url_for('shifts.view_shifts'))
     except Exception as e:
         # Log the exception
         print(f"An error occurred: {e}")
-        return "Error adding employee", 500
+        return "Error adding shift", 500
 
 @shifts.route('/edit/<int:shift_id>', methods=['GET'])
 def edit_shifts_form(shift_id):
@@ -44,9 +46,10 @@ def edit_shifts_form(shift_id):
 def update_shifts(shift_id):
     # Get the form data
     new_shifts = request.form['shift_name']
+    new_shift_type = request.form['shift_type']
     # Update in the database (using your custom function)
     try:
-        scheduling_db.update_shift_name(shift_id, new_shifts)
+        scheduling_db.update_shift_name(shift_id, new_shifts, new_shift_type)
         return redirect(url_for('shifts.view_shifts'))
     except Exception as e:
         # Log the exception

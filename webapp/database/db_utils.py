@@ -84,6 +84,24 @@ def fetch_all_shift_requirements():
     conn.close()
     return shift_requirements
 
-print(fetch_all_shift_requirements())
+def fetch_shift_requirements_for_bartenders():
+    """Fetch shift requirements for bartenders from the database."""
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT day, shift_id, required_employees FROM shiftrequirements WHERE role = 'bartender'")
+    shift_requirements = cursor.fetchall()
+    conn.close()
+    return shift_requirements
+
+def fetch_shift_requirements_for_barbacks():
+    """Fetch shift requirements for barbacks from the database."""
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT day, shift_id, required_employees FROM shiftrequirements WHERE role = 'barback'")
+    shift_requirements = cursor.fetchall()
+    conn.close()
+    return shift_requirements
+
+print(fetch_shift_requirements_for_barbacks())
 
 #

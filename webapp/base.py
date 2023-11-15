@@ -1,15 +1,16 @@
 from sched import scheduler
 from ortools.sat.python import cp_model
-from database.db_utils import fetch_all_employees, fetch_all_shifts, fetch_all_unavailable_days, fetch_all_shift_preferences, fetch_all_seniority, fetch_all_shift_requirements
+from database.db_utils import fetch_all_employees, fetch_all_shifts, fetch_all_unavailable_days, fetch_all_shift_preferences, fetch_all_seniority, fetch_all_shift_requirements, fetch_shift_requirements_for_bartenders, fetch_shift_requirements_for_barbacks
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 class Scheduler:
-    def __init__(self, employee_data=None, shift_data=None, preferences=None, seniority=None, shift_requirements=None):
-
-        self.employee_names = employee_data if employee_data else []# List of employee names.
-        self.shift_names = shift_data if shift_data else []# List of shift names.
+    def __init__(self, role, employee_data=None, shift_data=None, preferences=None, seniority=None, shift_requirements=None):
+        
+        self.role = role
+        self.employee_names = [name for name, emp_role in employee_data if emp_role == role]
+        self.shift_names = [name for name, shift_role in shift_data if shift_role == role]
         self.unavailable_days = preferences['unavailable_days'] if preferences else {}# Dictionary to hold days an employee is unavailable. Key is employee index and value is list of days.
         self.shift_preferences = preferences['shift_preferences'] if preferences else {}# Dictionary to hold employee shift preferences. Key is employee index and value is another dictionary mapping day index to preference score.
         # Dictionary holding the seniority score of each employee. Key is employee index and value is seniority score.
@@ -130,14 +131,14 @@ class Scheduler:
         return formatted_schedule, formatted_total_shifts
     
 
-def get_input_data():
+def get_input_data(role):
     # Employees' names
     employees = fetch_all_employees()
-    employee_names =  [emp[1] for emp in employees]
+    employee_names = [(emp[1], emp[2]) for emp in employees if emp[2] == role]
     
     # Shift names
     shifts = fetch_all_shifts()
-    shift_names = [shift[1] for shift in shifts]
+    shift_names = [(shift[1], shift[2]) for shift in shifts if shift[2] == role]
     
     unavailableDays = fetch_all_unavailable_days()
     unavailable_days = {} 
@@ -160,12 +161,24 @@ def get_input_data():
     for employee_id, score in fetch_senior:
         seniority[employee_id] = score
         
+    # Shift requirements data
+    if role == 'bartender':
+        all_shift_requirements = fetch_shift_requirements_for_bartenders()
+    elif role == 'barback':
+        all_shift_requirements = fetch_shift_requirements_for_barbacks()
+    else:
+        raise ValueError(f"Unsupported role: {role}")
+    
+    # Determine the range of shifts for the role
+    shift_ids = [shift_id for _, shift_id, _ in all_shift_requirements]
+    min_shift_id = min(shift_ids)
+    max_shift_id = max(shift_ids)
+        
     # Manager inputs number of employees needed for each shift on each day
-    all_shift_requirements = fetch_all_shift_requirements()
     shift_requirements = []
     for day in range(7):
         daily_requirements = []
-        for shift in range(9):  # Since you have 9 shifts per day
+        for shift in range(min_shift_id, max_shift_id + 1):
             req = next((x[2] for x in all_shift_requirements if x[0] == day and x[1] == shift), 0)
             daily_requirements.append(req)
         shift_requirements.append(daily_requirements)
@@ -174,20 +187,46 @@ def get_input_data():
 
 
 def main():
-    employee_data, shift_data, preferences, seniority, shift_requirements = get_input_data()
-    scheduler = Scheduler(employee_data, shift_data, preferences, seniority, shift_requirements)
-    schedule, total_shifts_per_employee = scheduler.generate_schedule()
+    # Schedule for bartenders
+    bartender_data = get_input_data('bartender')
+    bartender_scheduler = Scheduler('bartender', *bartender_data)
+    bartender_schedule, bartender_shifts_per_employee = bartender_scheduler.generate_schedule()
 
-    # `schedule` is now a list, so you just iterate over it directly
+
+    # Schedule for barbacks
+    barback_data = get_input_data('barback')
+    barback_scheduler = Scheduler('barback', *barback_data)
+    barback_schedule, barback_shifts_per_employee = barback_scheduler.generate_schedule()
+
+    
+    bartender_schedule, _ = bartender_scheduler.generate_schedule()
+    #print_schedule('Bartender', bartender_schedule, bartender_shifts_per_employee)
+    
+    barback_schedule, _ = barback_scheduler.generate_schedule()
+    print_schedule('Barback', barback_schedule, barback_shifts_per_employee)
+    
+
+def print_schedule(role, schedule, formatted_total_shifts):
+    print(f"\nSchedule for {role}:\n")
     for day_info in schedule:
-        print(f"Day {day_info['day']}")
+        print(f"Day {day_info['day'] + 1}:")  # Assuming 'day' is 0-indexed
         for shift_info in day_info['shifts']:
-            employees = ', '.join(shift_info['employees'])
-            print(f"  {shift_info['shift_name']}: {employees}")
+            if shift_info['employees']:
+                employees = ', '.join(shift_info['employees'])
+                print(f"  {shift_info['shift_name']}: {employees}")
+            else:
+                print(f"  {shift_info['shift_name']}: No employees assigned")
+        print()  # Newline for readability
 
-    # `total_shifts_per_employee` is also a list, so iterate over it directly too
-    for employee_info in total_shifts_per_employee:
-        print(f"Total shifts for {employee_info['employee_name']}: {employee_info['total_shifts']}")
+    # Printing total shifts per employee
+    print(f"Total Shifts per Employee for {role}:\n")
+    for employee_info in formatted_total_shifts:
+        employee = employee_info['employee_name']
+        total_shifts = employee_info['total_shifts']
+        print(f"{employee}: {total_shifts} shifts")
+    print()  # Newline for readability
+
+
 
 if __name__ == '__main__':
     try:
